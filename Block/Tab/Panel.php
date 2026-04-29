@@ -13,6 +13,8 @@ class Panel extends \Magento\Framework\View\Element\Template
 
     protected $qdbHelperRegister;
 
+    private  $frontUrl;
+
     /**
      * @param \Magento\Framework\View\Element\Template\Context $context
      * @param \ADM\QuickDevBar\Helper\Data $helper
@@ -24,7 +26,7 @@ class Panel extends \Magento\Framework\View\Element\Template
         \Magento\Framework\View\Element\Template\Context $context,
         \ADM\QuickDevBar\Helper\Data $helper,
         \ADM\QuickDevBar\Helper\Register $qdbHelperRegister,
-        private readonly UrlInterface $frontUrl,
+        UrlInterface $frontUrl,
         array $data = []
     ) {
         $data['show_badge'] = true;
@@ -32,6 +34,7 @@ class Panel extends \Magento\Framework\View\Element\Template
 
         $this->helper = $helper;
         $this->qdbHelperRegister = $qdbHelperRegister;
+        $this->frontUrl = $frontUrl;
     }
 
     /**

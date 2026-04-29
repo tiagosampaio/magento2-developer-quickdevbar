@@ -11,6 +11,8 @@ class Toolbar extends \Magento\Framework\View\Element\Template
 
     protected $_qdnHelper;
 
+    private  $frontUrl;
+
     /**
      * @param \Magento\Framework\View\Element\Template\Context $context
      * @param \ADM\QuickDevBar\Helper\Data $qdnHelper
@@ -20,12 +22,14 @@ class Toolbar extends \Magento\Framework\View\Element\Template
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
         \ADM\QuickDevBar\Helper\Data $qdnHelper,
-        private readonly UrlInterface $frontUrl,
+        UrlInterface $frontUrl,
         array $data = []
     ) {
         $this->_qdnHelper = $qdnHelper;
 
         parent::__construct($context, $data);
+
+        $this->frontUrl = $frontUrl;
     }
 
     /**
