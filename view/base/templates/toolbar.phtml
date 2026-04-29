@@ -141,7 +141,8 @@
                     });
 
                     clonedElement.text = scptElement.text;
-
+                    this.log(scptElement);
+                    // May cause a csp violation
                     scptElement.parentNode.replaceChild(clonedElement, scptElement);
                 });
             },
