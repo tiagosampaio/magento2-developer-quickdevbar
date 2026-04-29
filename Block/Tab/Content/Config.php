@@ -26,8 +26,10 @@ class Config extends \ADM\QuickDevBar\Block\Tab\Panel
     ];
 
     protected $_config_values;
+
     protected $_appConfig;
-    protected TypePool $typePool;
+
+    protected  $typePool;
 
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
@@ -57,14 +59,14 @@ class Config extends \ADM\QuickDevBar\Block\Tab\Panel
         return $this->_config_values;
     }
 
-    protected function _buildFlatConfig($scope, $path = '')
+    protected function _buildFlatConfig($configValue, $path = '')
     {
-        if (is_array($scope)) {
-            foreach ($scope as $key => $value) {
+        if (is_array($configValue)) {
+            foreach ($configValue as $key => $value) {
                 $this->_buildFlatConfig($value, $path . ($path ? '/' : '') . $key);
             }
         } else {
-            $maskedValue = $this->isSensitivePath($path) ? self::MASK : $scope;
+            $maskedValue = $this->isSensitivePath($path) ? self::MASK : $configValue;
             $this->_config_values[] = ['path' => $path, 'value' => $maskedValue];
         }
     }

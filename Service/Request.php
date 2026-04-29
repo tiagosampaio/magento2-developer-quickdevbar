@@ -73,6 +73,7 @@ class Request implements ServiceInterface
             $requestData[] = ['name' => 'Logged user', 'value' => $maskedEmail];
             $requestData[] = ['name' => 'Group id', 'value' => $this->session->getCustomer()->getGroupId()];
         }
+        //$requestData[] = ['name' => 'Session Id', 'value' => $this->session->getSessionId()];
 
         if ($request->getBeforeForwardInfo()) {
             $requestData[] = ['name' => 'Before Forward', 'value' => $request->getBeforeForwardInfo()];
@@ -85,7 +86,7 @@ class Request implements ServiceInterface
         $requestData[] = ['name' => 'Magento', 'value' => $this->productMetadata->getVersion()];
         $requestData[] = ['name' => 'Mage Mode', 'value' => $this->appState->getMode()];
 
-        $requestData[] = ['name' => 'Backend', 'value' => 'Admin'];
+        //$requestData[] = ['name' => 'Backend', 'value' => $request->getDistroBaseUrl() . $this->frontNameResolver->getFrontName(), 'is_url' => true];
 
         return $requestData;
     }
