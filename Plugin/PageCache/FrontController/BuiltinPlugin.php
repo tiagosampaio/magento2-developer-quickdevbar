@@ -1,27 +1,22 @@
 <?php
 
-
 namespace ADM\QuickDevBar\Plugin\PageCache\FrontController;
 
-
+use ADM\QuickDevBar\Helper\AccessChecker;
+use ADM\QuickDevBar\Service\App\Cache as CacheService;
 use Magento\PageCache\Model\Cache\Type as PageCache;
-use Magento\Framework\App\RequestInterface;
-use Magento\Framework\App\Response\Http as ResponseHttp;
-use Magento\Framework\App\ResponseInterface;
 
 class BuiltinPlugin
 {
-    /**
-     * @var \ADM\QuickDevBar\Service\App\Cache
-     */
-    private $cacheService;
+    private CacheService $cacheService;
+    private AccessChecker $accessChecker;
 
-    /**
-     * @param \ADM\QuickDevBar\Service\App\Cache $cacheService
-     */
-    public function __construct(\ADM\QuickDevBar\Service\App\Cache $cacheService)
-    {
+    public function __construct(
+        CacheService $cacheService,
+        AccessChecker $accessChecker
+    ) {
         $this->cacheService = $cacheService;
+        $this->accessChecker = $accessChecker;
     }
 
     /**
@@ -30,6 +25,9 @@ class BuiltinPlugin
      */
     public function beforeLoad(PageCache $subject, string $identifier)
     {
+        if (!$this->accessChecker->isToolbarAccessAllowed()) {
+            return;
+        }
         $this->cacheService->addCache('load', $identifier);
     }
 
@@ -38,28 +36,30 @@ class BuiltinPlugin
      * @param string $data
      * @param string $identifier
      * @param array $tags
-     * @param $lifeTime
-     * @return void
+     * @param int|null $lifeTime
      */
     public function beforeSave(
         PageCache $subject,
         string $data,
         string $identifier,
         array $tags = [],
-                       $lifeTime = null
+        $lifeTime = null
     ) {
-
+        if (!$this->accessChecker->isToolbarAccessAllowed()) {
+            return;
+        }
         $this->cacheService->addCache('save', $identifier);
     }
-
 
     /**
      * @param PageCache $subject
      * @param string $identifier
-     * @return void
      */
     public function beforeRemove(PageCache $subject, string $identifier)
     {
+        if (!$this->accessChecker->isToolbarAccessAllowed()) {
+            return;
+        }
         $this->cacheService->addCache('remove', $identifier);
     }
 }
