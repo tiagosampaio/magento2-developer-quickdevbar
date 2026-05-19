@@ -10,17 +10,17 @@ use Magento\Framework\App\MaintenanceMode;
 
 class AccessChecker
 {
-    private State $appState;
+    private  $appState;
 
-    private ScopeConfigInterface $scopeConfig;
+    private  $scopeConfig;
 
-    private RemoteAddress $remoteAddress;
+    private  $remoteAddress;
 
-    private HttpHeader $httpHeader;
+    private  $httpHeader;
 
-    private ?bool $isAllowed = null;
+    private  $isAllowed = null;
 
-    private static bool $isResolving = false;
+    private static $isResolving = false;
 
     private MaintenanceMode $maintenanceMode;
 

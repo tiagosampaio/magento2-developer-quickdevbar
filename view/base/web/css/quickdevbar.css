@@ -368,7 +368,7 @@
     }
 
     span.sqlmain {
-        color: var(--qdb-ft);
+        color: #1D4ED8FF;
     }
 
     span.sqlword {

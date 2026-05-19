@@ -46,7 +46,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     private $qdbSession;
 
-    private array $ideList;
+    private $ideList;
+
+    private $serializer;
 
     /**
      * @param \Magento\Framework\App\Helper\Context $context
