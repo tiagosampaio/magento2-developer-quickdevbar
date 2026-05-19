@@ -12,7 +12,7 @@
     </type>
 
     <type name="Magento\Framework\App\CacheInterface">
-        <plugin name="qdb-trace-cache"
+        <plugin name="qdb-trace-appcache"
                 type="ADM\QuickDevBar\Plugin\Framework\App\Cache" sortOrder="1" />
     </type>
 
@@ -24,19 +24,9 @@
     </type>
 
     <type name="Magento\PageCache\Model\Cache\Type">
-        <plugin name="qdb-trace-cache"
+        <plugin name="qdb-trace-pagecache"
                 type="ADM\QuickDevBar\Plugin\PageCache\FrontController\BuiltinPlugin" sortOrder="1" />
     </type>
-
-<!--    <type name="Magento\OpenSearch\Model\SearchClient">-->
-<!--        <plugin name="qdb-trace-opensearch"-->
-<!--                type="ADM\QuickDevBar\Plugin\Search\SearchClient" sortOrder="1" />-->
-<!--    </type>-->
-
-<!--    <type name="Magento\Elasticsearch\Elasticsearch5\Model\Client\Elasticsearch">-->
-<!--        <plugin name="qdb-trace-es"-->
-<!--                type="ADM\QuickDevBar\Plugin\Elasticsearch\Client" sortOrder="1" />-->
-<!--    </type>-->
 
     <type name="ADM\QuickDevBar\Helper\Register">
         <arguments>
@@ -93,6 +83,17 @@
                 <item name="qdb_disableDebugToolbar" xsi:type="object">ADM\QuickDevBar\Console\Command\DisableToolBar</item>
                 <item name="qdb_database" xsi:type="object">ADM\QuickDevBar\Console\Command\Database</item>
             </argument>
+        </arguments>
+    </type>
+
+    <type name="ADM\QuickDevBar\Block\Toolbar">
+        <arguments>
+            <argument name="frontUrl" xsi:type="object">Magento\Framework\Url</argument>
+        </arguments>
+    </type>
+    <type name="ADM\QuickDevBar\Block\Tab\Panel">
+        <arguments>
+            <argument name="frontUrl" xsi:type="object">Magento\Framework\Url</argument>
         </arguments>
     </type>
 

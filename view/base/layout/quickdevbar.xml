@@ -38,15 +38,6 @@
                     </action>
                 </block>
 
-                <block class="ADM\QuickDevBar\Block\Tab\Content\PhpInfo" name="qdb.tab.phpinfo.env" as="qdb.tab.phpinfo.env">
-                    <action method="setShortWhat">
-                        <argument name="what" xsi:type="string">1</argument>
-                    </action>
-                    <arguments>
-                        <argument name="title" xsi:type="string">Phpinfo (environment)</argument>
-                    </arguments>
-                </block>
-
                 <block class="ADM\QuickDevBar\Block\Tab\Content\PhpInfo" name="qdb.tab.phpinfo"  as="qdb.tab.phpinfo">
                     <arguments>
                         <argument name="title" xsi:type="string">Phpinfo</argument>

@@ -2,34 +2,34 @@
 
 namespace ADM\QuickDevBar\Plugin\Framework\Event;
 
+use ADM\QuickDevBar\Helper\AccessChecker;
+use ADM\QuickDevBar\Service\Event\Manager as ServiceManager;
+
 class Manager
 {
-    /**
-     * @var \ADM\QuickDevBar\Service\Manager
-     */
-    private $serviceManager;
+    private ServiceManager $serviceManager;
+    private AccessChecker $accessChecker;
 
-    /**
-     * @param \ADM\QuickDevBar\Helper\Register $qdbHelperRegister
-     */
     public function __construct(
-        \ADM\QuickDevBar\Service\Event\Manager $serviceManager
+        ServiceManager $serviceManager,
+        AccessChecker $accessChecker
     ) {
         $this->serviceManager = $serviceManager;
+        $this->accessChecker = $accessChecker;
     }
 
     /**
-     * Before dispatch event
+     * Record dispatched events for the dev bar profiler.
      *
-     * Calls all observer callbacks registered for this event
-     * and multiple observers matching event name pattern
-     *
-     * @param \Magento\Framework\Event\Manager $interceptor
+     * @param \Magento\Framework\Event\ManagerInterface $interceptor
      * @param string $eventName
      * @param array $data
      */
     public function beforeDispatch($interceptor, $eventName, $data = [])
     {
+        if (!$this->accessChecker->isToolbarAccessAllowed()) {
+            return;
+        }
         $this->serviceManager->addEvent($eventName, $data);
     }
 }

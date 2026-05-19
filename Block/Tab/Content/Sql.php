@@ -6,6 +6,7 @@ use ADM\QuickDevBar\Helper\Cookie;
 use ADM\QuickDevBar\Plugin\Zend\DbAdapter;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Stdlib\CookieManagerInterface;
+use Magento\Framework\UrlInterface;
 
 class Sql extends \ADM\QuickDevBar\Block\Tab\Panel
 {
@@ -18,9 +19,10 @@ class Sql extends \ADM\QuickDevBar\Block\Tab\Panel
         \ADM\QuickDevBar\Helper\Register $qdbHelperRegister,
         DataObjectFactory $objectFactory,
         Cookie $cookieHelper,
+        UrlInterface $frontUrl,
         array $data = []
     ) {
-        parent::__construct($context, $qdbHelper, $qdbHelperRegister, $data);
+        parent::__construct($context, $qdbHelper, $qdbHelperRegister, $frontUrl, $data);
         $this->qdbHelperRegister = $qdbHelperRegister;
         $this->objectFactory = $objectFactory;
         $this->cookieHelper = $cookieHelper;
@@ -90,10 +92,10 @@ class Sql extends \ADM\QuickDevBar\Block\Tab\Panel
 
     public function formatSql($sql)
     {
-        $htmlSql = preg_replace('/\b(SET|AS|ASC|COUNT|DESC|IN|LIKE|DISTINCT|INTO|VALUES|LIMIT)\b/', '<span class="sqlword">\\1</span>', $sql);
+        $escapedSql = $this->escapeHtml($sql);
+        $htmlSql = preg_replace('/\b(SET|AS|ASC|COUNT|DESC|IN|LIKE|DISTINCT|INTO|VALUES|LIMIT|AND|OR)\b/', '<span class="sqlword">\\1</span>', $escapedSql);
         $htmlSql = preg_replace('/\b(UNION ALL|DESCRIBE|SHOW|connect|begin|commit)\b/', '<br/><span class="sqlother">\\1</span>', $htmlSql);
         $htmlSql = preg_replace('/\b(UPDATE|SELECT|FROM|WHERE|LEFT JOIN|INNER JOIN|RIGHT JOIN|ORDER BY|GROUP BY|DELETE|INSERT)\b/', '<br/><span class="sqlmain">\\1</span>', $htmlSql);
-
         return preg_replace('/^<br\/>/', '', $htmlSql);
     }
 

@@ -7,6 +7,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Serialize\SerializerInterface;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
@@ -41,14 +42,23 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     private $appState;
     /**
-     * @var Session
+     * @var QdbSession
      */
     private $qdbSession;
 
-    private array $ideList;
+    private $ideList;
+
+    private $serializer;
 
     /**
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+     * @param \Magento\Framework\App\Helper\Context $context
+     * @param \Magento\Framework\App\Cache\Frontend\Pool $cacheFrontendPool
+     * @param \Magento\Framework\Module\ModuleListInterface $moduleList
+     * @param \Magento\Framework\Filesystem $filesystem
+     * @param array $ideList
+     * @param State $appState
+     * @param QdbSession $qdbSession
+     * @param SerializerInterface $serializer
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
@@ -57,17 +67,18 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Framework\Filesystem $filesystem,
         array $ideList,
         State $appState,
-        QdbSession $qdbSession
+        QdbSession $qdbSession,
+        SerializerInterface $serializer
     ) {
         parent::__construct($context);
         $this->cacheFrontendPool = $cacheFrontendPool;
         $this->moduleList = $moduleList;
 
-
         $this->filesystem = $filesystem;
         $this->appState = $appState;
         $this->qdbSession = $qdbSession;
         $this->ideList = $ideList;
+        $this->serializer = $serializer;
     }
 
 
@@ -113,77 +124,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $this->getQdbConfig('appearance');
     }
 
-    public function isToolbarAccessAllowed($testWithRestriction=false)
-    {
-        $allow = false;
-        $enable = $this->getQdbConfig('enable');
-
-        if ($enable || $testWithRestriction) {
-
-            if ($enable>1 || $testWithRestriction) {
-                $allow = $this->isIpAuthorized();
-
-                if(!$allow) {
-                    $allow = $this->isUserAgentAuthorized();
-                }
-            } else {
-                $allow = true;
-            }
-        }
-
-        return $allow;
-    }
-
     public function isToolbarAreaAllowed($area)
     {
         $areaEnabled = $this->getQdbConfig('area');
 
         return ($areaEnabled == \Magento\Framework\App\Area::AREA_GLOBAL)
                 || ($area == $areaEnabled);
-    }
-
-
-    public function isIpAuthorized()
-    {
-        if (array_search($this->getClientIp(), $this->getAllowedIps()) !== false) {
-            $allow = true;
-        } else {
-            $allow = false;
-        }
-
-        return $allow;
-    }
-
-    public function getAllowedIps($separator = false)
-    {
-        $allowedIps = $this->getQdbConfig('allow_ips');
-        if($allowedIps) {
-            $allowedIps = preg_split('#\s*,\s*#', $allowedIps, -1, PREG_SPLIT_NO_EMPTY);
-        } else {
-            $allowedIps = [];
-        }
-        $allowedIps = array_merge(["127.0.0.1", "::1"], $allowedIps);
-
-        return $separator ? implode($separator, $allowedIps) : $allowedIps;
-    }
-
-    public function getClientIp()
-    {
-        /*FIX FOR PROXY USERS RETURNING TWO IP ADDRESSES e.g. 127.0.0.1 127.0.0.1*/
-//        return $this->_getRequest()->getClientIp();
-        return $this->_remoteAddress->getRemoteAddress();
-    }
-
-    public function isUserAgentAuthorized()
-    {
-        $toolbarHeader = $this->getQdbConfig('toolbar_header');
-
-        return !empty($toolbarHeader) ? preg_match('/' . preg_quote($toolbarHeader, '/') . '/', $this->getUserAgent()) : false;
-    }
-
-    public function getUserAgent()
-    {
-        return $this->_httpHeader->getHttpUserAgent(true);
     }
 
 
@@ -214,7 +160,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     protected function canResetFile($filepath)
     {
-        if (is_file($filepath) and is_writable($filepath)) {
+        if (is_file($filepath) && is_writable($filepath)) {
             return true;
         }
         return false;
@@ -226,7 +172,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     protected function getFileSize($filepath)
     {
-        if (is_file($filepath) and file_exists($filepath)) {
+        if (is_file($filepath) && file_exists($filepath)) {
             return filesize($filepath);
         }
         return 0;
@@ -318,7 +264,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     protected function getWrapperBaseFilename($ajax = false)
     {
-        $qdbSessionId = $this->appState->getAreaCode().$this->qdbSession->getSessionId();
+        $qdbSessionId = hash('sha256', $this->appState->getAreaCode() . $this->qdbSession->getSessionId());
         return  'qdb_register_' . (!$ajax ? 'std' : 'xhr') . '_' . $qdbSessionId;
     }
 
@@ -353,12 +299,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             throw new LocalizedException(__('Error on QDB main file'));
         }
 
-        $serializer = new \Magento\Framework\Serialize\Serializer\Json();
-
         $content = [];
         foreach ($wrapperFiles as $jsonContent) {
             if($jsonContent) {
-                foreach ($serializer->unserialize($jsonContent) as $contentKey => $contentValue) {
+                foreach ($this->serializer->unserialize($jsonContent) as $contentKey => $contentValue) {
                     $content[$contentKey] =  empty($content[$contentKey]) ? $contentValue : array_merge($content[$contentKey], $contentValue);
                 }
             }
@@ -437,11 +381,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         if($btLinkFormat = $this->getIdeRegex()) {
-            return sprintf('<span data-ide-file="'.$btLinkFormat.'">'.$btFormat.'</span>', BP, $relativeFile, $line);
+            return sprintf(
+                '<span data-ide-file="%s">%s</span>',
+                htmlspecialchars(sprintf($btLinkFormat, BP, $relativeFile, $line), ENT_QUOTES),
+                htmlspecialchars(sprintf($btFormat, BP, $relativeFile, $line), ENT_QUOTES)
+            );
         }
 
-        return sprintf($btFormat, BP, $relativeFile, $line);
-
+        return htmlspecialchars(sprintf($btFormat, BP, $relativeFile, $line), ENT_QUOTES);
     }
 
     /**

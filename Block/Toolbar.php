@@ -2,28 +2,46 @@
 
 namespace ADM\QuickDevBar\Block;
 
+use ADM\QuickDevBar\Helper\AccessChecker;
+use ADM\QuickDevBar\Helper\Data;
 use ADM\QuickDevBar\Block\Tab;
-use Magento\Framework\App\ObjectManager;
+use Magento\Framework\UrlInterface;
+use Magento\Framework\View\Element\Template\Context;
 
 class Toolbar extends \Magento\Framework\View\Element\Template
 {
     protected $_mainTabs;
 
     protected $_qdnHelper;
-    /**
-     * @var \Magento\Framework\Url|mixed
-     */
-    private  $_frontUrl;
 
+    private  $frontUrl;
+
+
+    /**
+     * @var AccessChecker
+     */
+    protected $accessChecker;
+
+
+    /**
+     * @param Context $context
+     * @param Data $qdnHelper
+     * @param UrlInterface $frontUrl
+     * @param AccessChecker $accessChecker
+     * @param array $data
+     */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \ADM\QuickDevBar\Helper\Data $qdnHelper,
-        array $data = []
+        Context       $context,
+        Data          $qdnHelper,
+        UrlInterface  $frontUrl,
+        AccessChecker $accessChecker,
+        array         $data = []
     ) {
+        parent::__construct($context, $data);
 
         $this->_qdnHelper = $qdnHelper;
-
-        parent::__construct($context, $data);
+        $this->frontUrl = $frontUrl;
+        $this->accessChecker = $accessChecker;
     }
 
     /**
@@ -33,7 +51,7 @@ class Toolbar extends \Magento\Framework\View\Element\Template
      */
     protected function canDisplay()
     {
-        return $this->_qdnHelper->isToolbarAccessAllowed() && $this->_qdnHelper->isToolbarAreaAllowed($this->getArea());
+        return $this->accessChecker->isToolbarAccessAllowed() && $this->_qdnHelper->isToolbarAreaAllowed($this->getArea());
     }
 
     public function getAppearance()
@@ -43,11 +61,7 @@ class Toolbar extends \Magento\Framework\View\Element\Template
 
     public function getBaseUrl()
     {
-        if ($this->_frontUrl === null) {
-            $this->_frontUrl = ObjectManager::getInstance()->get('Magento\Framework\Url');
-        }
-
-        return $this->_frontUrl->getUrl();
+        return $this->frontUrl->getUrl();
     }
 
     public function isAjaxLoading()

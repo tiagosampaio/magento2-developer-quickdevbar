@@ -1,5 +1,16 @@
 Changelog: Quick Developer Toolbar for Magento2
 ====================================
+0.4.0
+* Fix Symfony 7 conflicts
+* fix: code quality cleanup — DI, dedup, CSP, reflection, dead code
+* security+perf: gate SQL profiler on access check, fix object creation
+* perf: scope observers to frontend/adminhtml areas only
+* security: systematic XSS remediation across all templates
+* security: mask sensitive data in toolbar output
+* security: CSRF protection, POST enforcement, cookie allowlist
+* fix: add plugin guards, production mode check, default-off
+Many thanks to [Ryan Hoerr](https://github.com/rhoerr) for all of his contributions.
+
 0.3.4
 * Add, indetification for unauthorized CSP js inline
 * Compatibility 2.4.8 and php 8.4

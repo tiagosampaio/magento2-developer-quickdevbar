@@ -1,20 +1,23 @@
 <?php
+
 namespace ADM\QuickDevBar\Plugin\Framework\App;
 
+use ADM\QuickDevBar\Helper\AccessChecker;
+use ADM\QuickDevBar\Service\App\Cache as CacheService;
 use Magento\Framework\App\CacheInterface;
 
 class Cache
 {
-    /**
-     * @var \ADM\QuickDevBar\Service\App\Cache
-     */
-    private $cacheService;
+    private CacheService $cacheService;
+    private AccessChecker $accessChecker;
 
-    public function __construct(\ADM\QuickDevBar\Service\App\Cache $cacheService)
-    {
+    public function __construct(
+        CacheService $cacheService,
+        AccessChecker $accessChecker
+    ) {
         $this->cacheService = $cacheService;
+        $this->accessChecker = $accessChecker;
     }
-
 
     /**
      * @param CacheInterface $subject
@@ -22,6 +25,9 @@ class Cache
      */
     public function beforeLoad(CacheInterface $subject, string $identifier)
     {
+        if (!$this->accessChecker->isToolbarAccessAllowed()) {
+            return;
+        }
         $this->cacheService->addCache('load', $identifier);
     }
 
@@ -30,8 +36,7 @@ class Cache
      * @param string $data
      * @param string $identifier
      * @param array $tags
-     * @param $lifeTime
-     * @return void
+     * @param int|null $lifeTime
      */
     public function beforeSave(
         CacheInterface $subject,
@@ -40,18 +45,21 @@ class Cache
         array $tags = [],
         $lifeTime = null
     ) {
-
+        if (!$this->accessChecker->isToolbarAccessAllowed()) {
+            return;
+        }
         $this->cacheService->addCache('save', $identifier);
     }
-
 
     /**
      * @param CacheInterface $subject
      * @param string $identifier
-     * @return void
      */
     public function beforeRemove(CacheInterface $subject, string $identifier)
     {
+        if (!$this->accessChecker->isToolbarAccessAllowed()) {
+            return;
+        }
         $this->cacheService->addCache('remove', $identifier);
     }
 }
