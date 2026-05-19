@@ -3,7 +3,7 @@
 namespace ADM\QuickDevBar\Plugin\Zend;
 
 use ADM\QuickDevBar\Helper\Cookie;
-use ADM\QuickDevBar\Service\AccessChecker;
+use ADM\QuickDevBar\Helper\AccessChecker;
 use Zend_Db_Adapter_Abstract;
 
 class DbAdapter
